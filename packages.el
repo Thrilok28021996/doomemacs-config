@@ -53,4 +53,4 @@
 ;; (package! python-black)      ;; Black formatter integration for Emacs :contentReference[oaicite:1]{index=1}
 ;; (package! py-isort) ;
                                         ;isort integration for Emacs :contentReference[oaicite:2]{index=2}
-(package! conda)
+;; (package! conda)

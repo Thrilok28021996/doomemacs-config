@@ -111,23 +111,3 @@
   (conda-env-initialize-interactive-shells)
   (conda-env-initialize-eshell))
 
-;; (after! python
-;;   (setq-hook! 'python-mode-hook +format-with '(isort black)))
-;; ;; Install via: M-x package-install RET ruff-format RET
-;; (after! 'ruff-format)
-;; (add-hook 'python-mode-hook 'ruff-format-on-save-mode)
-
-
-;; (after! apheleia
-;;   ;; 1. Define each formatter:
-;;   (setf (alist-get 'isort apheleia-formatters)
-;;         '("isort" "--stdout" "-"))              ; sort imports :contentReference[oaicite:5]{index=5}
-;;   (setf (alist-get 'ruff apheleia-formatters)
-;;         '("ruff" "format" "--stdin-filename" filepath)) ; format with Ruff :contentReference[oaicite:6]{index=6}
-;;   (setf (alist-get 'black apheleia-formatters)
-;;         '("black" "--quiet" "-"))              ; style with Black :contentReference[oaicite:7]{index=7}
-
-;;   ;; 2. Chain them for Python buffers:
-;;   (setf (alist-get 'python-mode apheleia-mode-alist)
-;;         '(isort ruff black))                     ; run isort → ruff → black :contentReference[oaicite:8]{index=8}
-;;   )
