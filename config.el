@@ -18,35 +18,11 @@
 ;; - `doom-symbol-font' -- for symbols
 ;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
 ;;
+(setq doom-font (font-spec :family "Fira Code" :size 15))
+
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
 ;;
-;; Disable UI elements early to reduce startup overhead.
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-;; Enable relative line numbers globally.
-(global-display-line-numbers-mode t)
-(setq display-line-numbers-type 'nill)
-
-;; Set default font
-;; (set-face-attribute 'default nil :family "Fira Code" :height 200)
-(set-face-attribute 'default nil :font "FiraCode Nerd Font" :height 200)
-
-;; 1) Ensure private‑use area (PUA) glyphs come from FiraCode Nerd Font
-(set-fontset-font t
-                  '(#xe000 . #xf8fff)   ;; covers U+E000…U+F8FF PUA block
-                  (font-spec :family "FiraCode Nerd Font")
-                  nil 'prepend)
-
-;; 2) Also cover the 'symbol' script (some icons categorize there)
-(set-fontset-font t 'symbol
-                  (font-spec :family "FiraCode Nerd Font")
-                  nil 'prepend)
-
-
-
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
 ;;
@@ -58,15 +34,12 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-;;; Theme Configuration
-(setq doom-theme 'catppuccin)
-(setq catppuccin-flavor 'macchiato) ; or 'frappe 'latte, 'macchiato, or 'mocha
-(load-theme 'catppuccin t)
+(setq doom-theme 'doom-one)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
-
+(setq display-line-numbers-type 'relative)
+(add-to-list 'initial-frame-alist '(fullscreen . fullboth))
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
@@ -103,11 +76,81 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+
+;; Set the C/C++ style. "file" will look for a .clang-format file in your
+;; project's directory. You can also use "llvm", "google", "chromium", etc.
+;; Configure C/C++ indentation and style
+(after! cc-mode
+  ;; Set the fundamental indentation to 4 spaces
+  (setq c-basic-offset 4)
+
+  ;; Set the visual width of tab characters to 4 spaces
+  ;; This doesn't mean "use tabs", it just defines their width if they appear.
+  (setq-default tab-width 4)
+
+  ;; IMPORTANT: Tell Emacs to use spaces for indentation, not actual tab characters.
+  ;; This is the standard for most modern projects.
+  (setq indent-tabs-mode nil)
+
+  ;; If you want to define a custom style directly in your config instead of
+  ;; relying on file-local variables, you can do this:
+  ;; (c-add-style "my-style"
+  ;;              '("gnu" ; Start with the "gnu" style as a base
+  ;;                (c-basic-offset . 4)
+  ;;                (indent-tabs-mode . nil)))
+  ;; And then set it as the default:
+  ;; (setq c-default-style "my-style")
+  )
+
+;; --- Python & Conda Configuration ---
+;; The +conda flag in init.el already loads conda.el for you.
+;; This makes the `conda-env-activate` command available.
+
+;; When you activate a conda environment, lsp-mode (and pyright) will
+;; automatically use the Python interpreter and packages from that env.
+;; This is the "magic" that makes it all work seamlessly.
+
+;; Optional: Point to your preferred python interpreter for general use.
+;; When a conda env is active, it will override this.
+;; (setq python-shell-interpreter "python3")
+
+
+;; --- C++ Configuration ---
+;; For clangd (LSP) to work correctly, it needs a `compile_commands.json` file.
+;; This file tells clangd how your project is compiled.
 ;;
-(use-package! conda
-  :defer t
-  :init (setq conda-anaconda-home (expand-file-name "~/miniconda3"))
-  :config
-  (conda-env-initialize-interactive-shells)
-  (conda-env-initialize-eshell))
+;; You can generate it easily with CMake:
+;;
+;;   $ cd /path/to/your/project
+;;   $ mkdir build && cd build
+;;   $ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+;;
+;; `clangd` will automatically find this file when you open a C++ file in
+;; that project. There's usually no extra Emacs configuration needed for this.
+
+
+;; --- Formatter Configuration ---
+;; This ensures that `black` is used for Python and `clang-format` for C++.
+;; The :editor (format +onsave) in init.el will trigger these on save.
+
+
+;; This block configures Python mode.
+(after! 'python
+  ;; 1. Set the FORMATTER to `ruff format`.
+  ;;    This is triggered on save by the `+onsave` flag.
+  (setq-hook! 'python-mode-hook +format-with 'ruff-format)
+
+  ;; 2. Set the LINTER to `ruff`.
+  ;;    This replaces flake8 for on-the-fly error checking.
+  (setq-hook! 'python-mode-hook flycheck-checker 'python-ruff))
+
+
+
+
+(after! 'cc
+  ;; lsp-format-buffer will use the LSP server's formatter, which is clangd.
+  ;; clangd, in turn, uses clang-format.
+  (setq-hook! 'c-mode-hook +format-with 'lsp)
+  (setq-hook! 'c++-mode-hook +format-with 'lsp))
+
 

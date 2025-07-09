@@ -47,10 +47,3 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
-;;
-(package! catppuccin-theme)
-;; (package! ruff-format)       ;; Emacs minor mode for ruff's `format` command :contentReference[oaicite:0]{index=0}
-;; (package! python-black)      ;; Black formatter integration for Emacs :contentReference[oaicite:1]{index=1}
-;; (package! py-isort) ;
-                                        ;isort integration for Emacs :contentReference[oaicite:2]{index=2}
-;; (package! conda)
